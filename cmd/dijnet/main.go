@@ -88,25 +88,6 @@ func run(cfg config) error {
 		return errors.New("nothing to do: enable --download-pdf and/or --download-xml, or use --list-invoices/--list-providers")
 	}
 
-	srv := dijnet.NewService()
-	if err := srv.Login(cfg.username, cfg.password); err != nil {
-		return fmt.Errorf("login error: %w", err)
-	}
-
-	providers, token, err := srv.Providers()
-	if err != nil {
-		return fmt.Errorf("unable to get providers: %w", err)
-	}
-
-	if cfg.listProviders {
-		for _, p := range providers {
-			fmt.Println(p)
-		}
-		if cfg.provider == "" {
-			return nil
-		}
-	}
-
 	latestLocalInvoiceDate, hasLocalInvoices, err := latestInvoiceDate(cfg.invoicePath)
 	if err != nil {
 		return err
@@ -124,6 +105,25 @@ func run(cfg config) error {
 		}
 		if shouldResume && hasLocalInvoices {
 			from = latestLocalInvoiceDate.AddDate(0, 0, 1)
+		}
+	}
+
+	srv := dijnet.NewService()
+	if err := srv.Login(cfg.username, cfg.password); err != nil {
+		return fmt.Errorf("login error: %w", err)
+	}
+
+	providers, token, err := srv.Providers()
+	if err != nil {
+		return fmt.Errorf("unable to get providers: %w", err)
+	}
+
+	if cfg.listProviders {
+		for _, p := range providers {
+			fmt.Println(p)
+		}
+		if cfg.provider == "" {
+			return nil
 		}
 	}
 
@@ -160,7 +160,7 @@ func run(cfg config) error {
 	}
 
 	for i, invoice := range invoices {
-		fmt.Printf("Downloading invoice %d/%d\n", i+1, len(invoices))
+		fmt.Printf("Downloading invoice %d/%d: %s\n", i+1, len(invoices), invoice)
 
 		providerPath := filepath.Join(cfg.invoicePath, invoice.Provider, invoice.IssuerID)
 		if err := os.MkdirAll(providerPath, os.ModePerm); err != nil {

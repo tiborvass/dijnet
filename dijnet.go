@@ -167,6 +167,12 @@ type Invoice struct {
 	Status          string
 }
 
+const dateLayout = "2006.01.02"
+
+func (i Invoice) String() string {
+	return fmt.Sprintf("%s_%s", i.DateOfIssue.Format(dateLayout), i.InvoiceID)
+}
+
 type InvoicesQuery struct {
 	Provider string
 	IssuerID string
@@ -191,8 +197,7 @@ func (s Service) Invoices(query InvoicesQuery) ([]Invoice, error) {
 		return ret, err
 	}
 
-	dateLayout := "2006.01.02"
-	queryDateLayout := "2006-01-02"
+	const queryDateLayout = "2006-01-02"
 	var from, to string
 	if !query.From.IsZero() {
 		from = query.From.Format(queryDateLayout)
