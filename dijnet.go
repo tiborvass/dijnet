@@ -192,12 +192,13 @@ func (s Service) Invoices(query InvoicesQuery) ([]Invoice, error) {
 	}
 
 	dateLayout := "2006.01.02"
+	queryDateLayout := "2006-01-02"
 	var from, to string
 	if !query.From.IsZero() {
-		from = query.From.Format(dateLayout)
+		from = query.From.Format(queryDateLayout)
 	}
 	if !query.To.IsZero() {
-		to = query.To.Format(dateLayout)
+		to = query.To.Format(queryDateLayout)
 	}
 
 	payload := url.Values{}
